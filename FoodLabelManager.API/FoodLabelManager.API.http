@@ -1,0 +1,6 @@
+@FoodLabelManager.API_HostAddress = http://localhost:5040
+
+GET {{FoodLabelManager.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

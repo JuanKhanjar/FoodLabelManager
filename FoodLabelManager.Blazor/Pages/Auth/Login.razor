@@ -1,0 +1,44 @@
+@page "/login"
+@layout AuthLayout
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MudBlazor.MaxWidth.Small">
+    <MudPaper Elevation="3" Class="pa-8 mt-8">
+        <MudText Typo="Typo.h4" Align="Center" Class="mb-4">تسجيل الدخول</MudText>
+        <MudForm @ref="form" @bind-IsValid="success" @bind-Errors="errors">
+            <MudTextField T="string" Label="اسم المستخدم" @bind-Value="_loginRequest.Username" Required="true" RequiredError="اسم المستخدم مطلوب."></MudTextField>
+            <MudTextField T="string" Label="كلمة المرور" InputType="InputType.Password" @bind-Value="_loginRequest.Password" Required="true" RequiredError="كلمة المرور مطلوبة."></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" FullWidth="true" OnClick="HandleLogin" Disabled="!success">تسجيل الدخول</MudButton>
+        </MudForm>
+        <MudText Align="Center" Class="mt-4">ليس لديك حساب؟ <MudLink Href="/register">سجل الآن</MudLink></MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudForm? form;
+    private bool success;
+    private string[] errors = { };
+    private LoginRequestDto _loginRequest = new();
+
+    private async Task HandleLogin()
+    {
+        await form!.Validate();
+
+        if (success)
+        {
+            var result = await AuthService.LoginAsync(_loginRequest);
+            if (result.Success)
+            {
+                Snackbar.Add("تم تسجيل الدخول بنجاح!", Severity.Success);
+                NavigationManager.NavigateTo("/", true);
+            }
+            else
+            {
+                Snackbar.Add(result.Message, Severity.Error);
+            }
+        }
+    }
+}
+

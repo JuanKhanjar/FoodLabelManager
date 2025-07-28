@@ -1,0 +1,48 @@
+@page "/register"
+@layout AuthLayout
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MudBlazor.MaxWidth.Small">
+    <MudPaper Elevation="3" Class="pa-8 mt-8">
+        <MudText Typo="Typo.h4" Align="Center" Class="mb-4">تسجيل حساب جديد</MudText>
+        <MudForm @ref="form" @bind-IsValid="success" @bind-Errors="errors">
+            <MudTextField T="string" Label="اسم المستخدم" @bind-Value="_registerRequest.Username" Required="true" RequiredError="اسم المستخدم مطلوب."></MudTextField>
+            <MudTextField T="string" Label="البريد الإلكتروني" @bind-Value="_registerRequest.Email" Required="true" RequiredError="البريد الإلكتروني مطلوب." InputType="InputType.Email"></MudTextField>
+            <MudTextField T="string" Label="كلمة المرور" InputType="InputType.Password" @bind-Value="_registerRequest.Password" Required="true" RequiredError="كلمة المرور مطلوبة."></MudTextField>
+            <MudTextField T="string" Label="تأكيد كلمة المرور" InputType="InputType.Password" @bind-Value="_registerRequest.ConfirmPassword" Required="true" RequiredError="تأكيد كلمة المرور مطلوب."></MudTextField>
+            <MudTextField T="string" Label="الاسم الأول (اختياري)" @bind-Value="_registerRequest.FirstName"></MudTextField>
+            <MudTextField T="string" Label="الاسم الأخير (اختياري)" @bind-Value="_registerRequest.LastName"></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" FullWidth="true" OnClick="HandleRegister" Disabled="!success">تسجيل</MudButton>
+        </MudForm>
+        <MudText Align="Center" Class="mt-4">لديك حساب بالفعل؟ <MudLink Href="/login">سجل الدخول</MudLink></MudText>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudForm? form;
+    private bool success;
+    private string[] errors = { };
+    private RegisterRequestDto _registerRequest = new();
+
+    private async Task HandleRegister()
+    {
+        await form!.Validate();
+
+        if (success)
+        {
+            var result = await AuthService.RegisterAsync(_registerRequest);
+            if (result.Success)
+            {
+                Snackbar.Add("تم التسجيل بنجاح! يمكنك الآن تسجيل الدخول.", Severity.Success);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                Snackbar.Add(result.Message, Severity.Error);
+            }
+        }
+    }
+}
+
